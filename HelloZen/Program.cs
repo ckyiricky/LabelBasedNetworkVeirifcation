@@ -2,7 +2,7 @@
 using ZenLib;
 using static ZenLib.Language;
 
-namespace ZenTest
+namespace HelloZen
 {
     class MainClass
     {

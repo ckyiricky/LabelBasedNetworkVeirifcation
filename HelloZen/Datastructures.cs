@@ -13,7 +13,7 @@ namespace HelloZen
             nameSpace = ns;
             labels = lbs;
         }
-        public Pod(string ns) : this(ns, new Dictionary<string, string>()) { }
+        public Pod(string ns="default") : this(ns, new Dictionary<string, string>()) { }
         public bool addLabel(string key, string val)
         {
             return labels.TryAdd(key, val);
@@ -27,20 +27,28 @@ namespace HelloZen
             labels[key] = newVal;
         }
     };
+    // one real policy could be split into several Policy objects
     public class Policy
     {
         public bool ingress;
-        public string namespaceName;
-        // in this class, one policy only select one group of pods
-        public Dictionary<string, string> selectLabels;
-        // ipblock selection is not supported
-        public Selector[]? allowLabels;
-        public Policy(string ns, Dictionary<string, string> select, Selector[] allows, bool ingress = true)
+        public string ns;
+        public Dictionary<string, string>? selectLabels;
+        // null means no condition applies to this field
+        // empty dictionary means no selection allowed -- this only happens when set default deny policy
+        //   default deny policy should have allowNS and allowLabel be empty at the same time
+        public Dictionary<string, string>? allowNamespaces;
+        public Dictionary<string, string>? allowLabels;
+        public Policy(string ns="default", 
+            Dictionary<string, string> sLabels=null, 
+            Dictionary<string, string> aNs=null, 
+            Dictionary<string, string> aLabels=null, 
+            bool ingress=true)
         {
             this.ingress = ingress;
-            namespaceName = ns;
-            selectLabels = select;
-            allowLabels = allows;
+            this.ns = ns;
+            selectLabels = sLabels;
+            allowNamespaces = aNs;
+            allowLabels = aLabels;
         }
     };
     public class Selector

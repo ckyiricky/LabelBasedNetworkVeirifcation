@@ -39,7 +39,7 @@ namespace HelloZen
             {
                 namespaces[i] = new Namespace(keys[i]);
             }
-            // TODO: assign keys and values to labels 
+
             var random = new Random();
             int initKey = random.Next(keys.Length);
             int initVal = random.Next(values.Length);
@@ -75,38 +75,36 @@ namespace HelloZen
                     initKey = (++initKey) % keys.Length;
                     initVal = (++initVal) % values.Length;
                 }
-                policies[i] = new Policy(namespaces[i].name, selected, null);
+                policies[i] = new Policy(namespaces[i].name, selected);
             }
 
+            // half policies have allowNS + allowLabel combination
             for (int i = 0; i < policies.Length/2; ++i)
             {
                 int nsAllow = random.Next((int)allowNsMax+1);
-                Selector[] selectors = new Selector[1];
-                Selector selector = new Selector(new Dictionary<string, string>(), null);
+                policies[i].allowNamespaces = new Dictionary<string, string>();
                 for (int j = 0; j < nsAllow; ++j)
                 {
-                    selector.allowedNs.TryAdd(keys[initKey], values[initVal]);
+                    policies[i].allowNamespaces.TryAdd(keys[initKey], values[initVal]);
                     initKey = (++initKey) % keys.Length;
                     initVal = (++initVal) % values.Length;
                 }
-                selectors[1] = selector;
-                policies[i].allowLabels = selectors;
             }
 
-            for (int i = policies.Length/2; i < policies.Length; ++i)
+            // half policies only have allowLabel
+            for (int i = 0; i < policies.Length; ++i)
             {
                 int labelAllow = random.Next((int)allowLabelMax+1);
-                Selector[] selectors = new Selector[1];
-                Selector selector = new Selector(null, new Dictionary<string, string>());
+                policies[i].allowLabels = new Dictionary<string, string>();
                 for (int j = 0; j < labelAllow; ++j)
                 {
-                    selector.allowedLabel.TryAdd(keys[initKey], values[initVal]);
+                    policies[i].allowLabels.TryAdd(keys[initKey], values[initVal]);
                     initKey = (++initKey) % keys.Length;
                     initVal = (++initVal) % values.Length;
                 }
-                selectors[1] = selector;
-                policies[i].allowLabels = selectors;
             }
+
+            // TODO: generate allowNS only policy
         }
     };
 
