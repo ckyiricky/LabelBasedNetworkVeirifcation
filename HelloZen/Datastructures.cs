@@ -32,6 +32,7 @@ namespace HelloZen
     {
         public bool ingress;
         public string ns;
+        // null means select all pods in the ns
         public Dictionary<string, string>? selectLabels;
         // null means no condition applies to this field
         // empty dictionary means no selection allowed -- this only happens when set default deny policy

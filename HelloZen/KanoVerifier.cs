@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace HelloZen
 {
@@ -54,6 +54,8 @@ namespace HelloZen
         }
         // Reachability matrix = Ingress matrix && Egress matrix 
         //   split policy into ingress and egress and call this function twice
+        //   transpose both matrix(ingress and egress) and do bitset and
+        //   expected to get two reachability matrix: 1. ingress as row 2. egress as row
         public BitArray[] createReachMatrix(Pod[] pods, Policy[] policies, Namespace[] namespaces)
         {
             var n = pods.Length;
@@ -103,7 +105,7 @@ namespace HelloZen
                         else selectSet = selectSet.And(labelHash[label.Key]);
                     }
 
-                BitArray allowNsSet = new BitArray(namespaces.Length, true);
+                BitArray allowNsSet = new BitArray(namespaces.Length);
                 BitArray allowSet = new BitArray(n);
                 var allowNs = policies[i].allowNamespaces;
                 // if allowNS == null, only default namespace is allowed
@@ -117,7 +119,7 @@ namespace HelloZen
                             allowNsSet.SetAll(false);
                             break;
                         }
-                        allowNsSet = allowNsSet.And(nsLabelMatrix[nsLabel.Key]);
+                        allowNsSet = allowNsSet.Or(nsLabelMatrix[nsLabel.Key]);
                     }
                     // check ns label value with allowed label value
                     for (int j = 0; j < namespaces.Length; ++j)
@@ -175,8 +177,6 @@ namespace HelloZen
                     }
                 }
 
-                // TODO: unselected pods should have all traffic allowed
-                //       only set selected pods to traffic denied and udpate based on it
                 for (int j = 0; j < n; ++j)
                 {
                     if (selectSet.Get(j) && selectLabels != null)
